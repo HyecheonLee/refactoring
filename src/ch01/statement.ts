@@ -18,7 +18,7 @@ export function statement(invoice: Invoice, plays: Plays) {
     performance: invoice.performances.map(value => enrichPerformance(value)),
   };
 
-  return renderPlainText(statementData, plays);
+  return renderPlainText(statementData);
 
   function enrichPerformance(performance: Performance): PerformanceDetail {
     const newPerformance = {...performance} as Performance;
@@ -65,8 +65,7 @@ export function statement(invoice: Invoice, plays: Plays) {
   }
 }
 
-
-function renderPlainText(data: InvoiceWithDetail, plays: Plays) {
+function renderPlainText(data: InvoiceWithDetail) {
 
   let result = `청구 내역 (고객명: ${data.customer})\n`;
 
@@ -77,6 +76,10 @@ function renderPlainText(data: InvoiceWithDetail, plays: Plays) {
   result += `총액: ${usd(totalAmount(data))}\n`;
   result += `적립 포인트: ${totalVolumeCredits(data)}점\n`;
   return result;
+}
+
+export function htmlStatement(invoice: Invoice, plays: Plays) {
+
 }
 
 function usd(number: number) {
