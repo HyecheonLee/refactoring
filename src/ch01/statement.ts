@@ -9,9 +9,10 @@ export function statement(invoice: Invoice, plays: Plays) {
     minimumFractionDigits: 2
   }).format;
 
+
   for (const performance of invoice.performances) {
-    volumeCredits += Math.max(performance.audience - 30, 0);
-    if ("comedy" === playFor(performance).type) volumeCredits += Math.floor(performance.audience / 5);
+    volumeCredits += volumeCreditsFor(performance);
+
     result += ` ${playFor(performance).name}: ${format(amountFor(performance) / 100)} (${performance.audience}석)\n`;
     totalAmount += amountFor(performance);
   }
@@ -19,6 +20,13 @@ export function statement(invoice: Invoice, plays: Plays) {
   result += `총액: ${format(totalAmount / 100)}\n`;
   result += `적립 포인트: ${volumeCredits}점\n`;
   return result;
+
+  function volumeCreditsFor(performance: Performance) {
+    let result = 0;
+    result += Math.max(performance.audience - 30, 0);
+    if ("comedy" === playFor(performance).type) result += Math.floor(performance.audience / 5);
+    return result;
+  }
 
   function playFor(performance: Performance) {
     return plays[performance.playID];
