@@ -1,4 +1,4 @@
-import {Invoice, Performance, Play, Plays} from "./types";
+import {Invoice, Performance, Plays} from "./types";
 
 export function statement(invoice: Invoice, plays: Plays) {
   let totalAmount = 0;
@@ -10,13 +10,12 @@ export function statement(invoice: Invoice, plays: Plays) {
   }).format;
 
   for (const performance of invoice.performances) {
-    const thisAmount = amountFor(performance);
-
     volumeCredits += Math.max(performance.audience - 30, 0);
     if ("comedy" === playFor(performance).type) volumeCredits += Math.floor(performance.audience / 5);
-    result += ` ${playFor(performance).name}: ${format(thisAmount / 100)} (${performance.audience}석)\n`;
-    totalAmount += thisAmount;
+    result += ` ${playFor(performance).name}: ${format(amountFor(performance) / 100)} (${performance.audience}석)\n`;
+    totalAmount += amountFor(performance);
   }
+
   result += `총액: ${format(totalAmount / 100)}\n`;
   result += `적립 포인트: ${volumeCredits}점\n`;
   return result;
