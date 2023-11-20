@@ -10,13 +10,11 @@ export function statement(invoice: Invoice, plays: Plays) {
   }).format;
 
   for (const performance of invoice.performances) {
-    const play = playFor(performance);
-
-    const thisAmount = amountFor(play, performance);
+    const thisAmount = amountFor(playFor(performance), performance);
 
     volumeCredits += Math.max(performance.audience - 30, 0);
-    if ("comedy" === play.type) volumeCredits += Math.floor(performance.audience / 5);
-    result += ` ${play.name}: ${format(thisAmount / 100)} (${performance.audience}석)\n`;
+    if ("comedy" === playFor(performance).type) volumeCredits += Math.floor(performance.audience / 5);
+    result += ` ${playFor(performance).name}: ${format(thisAmount / 100)} (${performance.audience}석)\n`;
     totalAmount += thisAmount;
   }
   result += `총액: ${format(totalAmount / 100)}\n`;
