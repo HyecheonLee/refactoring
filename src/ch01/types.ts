@@ -20,3 +20,16 @@ export interface Invoice {
   customer: string;
   performances: Performance[];
 }
+
+export type PerformanceDetail = Performance & {
+  play: Play
+  amount: number;
+  volumeCredits: number;
+};
+
+export type StatementData = {
+  customer: string;
+  performance: PerformanceDetail[],
+  totalAmount: number;
+  totalVolumeCredits: number;
+}
