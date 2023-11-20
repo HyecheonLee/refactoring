@@ -1,4 +1,4 @@
-import {Invoice, Plays} from "./types";
+import {Invoice, Play, Plays, Performance} from "./types";
 import {invoices, plays} from "./data";
 
 export function statement(invoice: Invoice, plays: Plays) {
@@ -10,27 +10,12 @@ export function statement(invoice: Invoice, plays: Plays) {
     minimumFractionDigits: 2
   }).format;
 
+
   for (const perf of invoice.performances) {
     const play = plays[perf.playID];
-    let thisAmount = 0;
 
-    switch (play.type) {
-      case "tragedy": // 비극
-        thisAmount = 40000;
-        if (perf.audience > 30) {
-          thisAmount += 1000 * (perf.audience - 30);
-        }
-        break;
-      case "comedy": // 희극
-        thisAmount = 30000;
-        if (perf.audience > 20) {
-          thisAmount += 10000 + 500 * (perf.audience - 20);
-          thisAmount += 300 * perf.audience;
-          break;
-        }
-      default:
-        throw new Error(`알 수 없는 장르: ${play.type}`);
-    }
+    const thisAmount = amountFor(play, perf);
+
     volumeCredits += Math.max(perf.audience - 30, 0);
     if ("comedy" === play.type) volumeCredits += Math.floor(perf.audience / 5);
     result += ` ${play.name}: ${format(thisAmount / 100)} (${perf.audience}석)\n`;
@@ -40,5 +25,28 @@ export function statement(invoice: Invoice, plays: Plays) {
   result += `적립 포인트: ${volumeCredits}점\n`;
   return result;
 }
+
+function amountFor(play: Play, perf: Performance) {
+  let thisAmount = 0;
+  switch (play.type) {
+    case "tragedy": // 비극
+      thisAmount = 40000;
+      if (perf.audience > 30) {
+        thisAmount += 1000 * (perf.audience - 30);
+      }
+      break;
+    case "comedy": // 희극
+      thisAmount = 30000;
+      if (perf.audience > 20) {
+        thisAmount += 10000 + 500 * (perf.audience - 20);
+        thisAmount += 300 * perf.audience;
+        break;
+      }
+    default:
+      throw new Error(`알 수 없는 장르: ${play.type}`);
+  }
+  return thisAmount;
+}
+
 
 const result = statement(invoices[0], plays);

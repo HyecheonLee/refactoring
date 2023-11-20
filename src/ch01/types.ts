@@ -1,6 +1,6 @@
 type PlayType = 'tragedy' | 'comedy';
 
-interface Play {
+export interface Play {
   name: string;
   type: PlayType;
 }
@@ -11,7 +11,7 @@ export interface Plays {
 
 type PlayID = 'hamlet' | 'as-like' | 'othello';
 
-interface Performance {
+export interface Performance {
   playID: PlayID;
   audience: number;
 }
