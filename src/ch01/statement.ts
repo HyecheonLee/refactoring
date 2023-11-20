@@ -9,11 +9,11 @@ export function statement(invoice: Invoice, plays: Plays) {
   for (const performance of invoice.performances) {
     volumeCredits += volumeCreditsFor(performance);
 
-    result += ` ${playFor(performance).name}: ${usd(amountFor(performance) / 100)} (${performance.audience}석)\n`;
+    result += ` ${playFor(performance).name}: ${usd(amountFor(performance))} (${performance.audience}석)\n`;
     totalAmount += amountFor(performance);
   }
 
-  result += `총액: ${usd(totalAmount / 100)}\n`;
+  result += `총액: ${usd(totalAmount)}\n`;
   result += `적립 포인트: ${volumeCredits}점\n`;
   return result;
 
@@ -21,7 +21,7 @@ export function statement(invoice: Invoice, plays: Plays) {
     return new Intl.NumberFormat("en-US", {
       style: "currency", currency: "USD",
       minimumFractionDigits: 2
-    }).format(number);
+    }).format(number / 100);
   }
 
   function volumeCreditsFor(performance: Performance) {
