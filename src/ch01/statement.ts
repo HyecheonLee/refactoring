@@ -1,14 +1,77 @@
-import {Invoice, Performance, Plays} from "./types";
+import {Invoice, Performance, Play, Plays} from "./types";
+
+type PerformanceDetail = Performance & {
+  play: Play
+  amount: number;
+  volumeCredits: number;
+};
+
+type InvoiceWithDetail = {
+  customer: string;
+  performance: PerformanceDetail[]
+}
 
 export function statement(invoice: Invoice, plays: Plays) {
-  // let totalAmount = 0;
 
-  let result = `청구 내역 (고객명: ${invoice.customer})\n`;
+  const statementData: InvoiceWithDetail = {
+    customer: invoice.customer,
+    performance: invoice.performances.map(value => enrichPerformance(value)),
+  };
+
+  return renderPlainText(statementData, plays);
+
+  function enrichPerformance(performance: Performance): PerformanceDetail {
+    const newPerformance = {...performance} as Performance;
+    const play = playFor(newPerformance);
+    return {
+      ...newPerformance,
+      play: play,
+      amount: amountFor(newPerformance, play),
+      volumeCredits: volumeCreditsFor(newPerformance, play),
+    }
+  }
+
+  function amountFor(performance: Performance, play: Play) {
+    let result = 0;
+    switch (play.type) {
+      case "tragedy": // 비극
+        result = 40000;
+        if (performance.audience > 30) {
+          result += 1000 * (performance.audience - 30);
+        }
+        break;
+      case "comedy": // 희극
+        result = 30000;
+        if (performance.audience > 20) {
+          result += 10000 + 500 * (performance.audience - 20);
+          result += 300 * performance.audience;
+          break;
+        }
+      default:
+        throw new Error(`알 수 없는 장르: ${play.type}`);
+    }
+    return result;
+  }
+
+  function playFor(performance: Performance) {
+    return plays[performance.playID];
+  }
+
+  function volumeCreditsFor(performance: Performance, play: Play) {
+    let result = 0;
+    result += Math.max(performance.audience - 30, 0);
+    if ("comedy" === play.type) result += Math.floor(performance.audience / 5);
+    return result;
+  }
+}
 
 
-  for (const performance of invoice.performances) {
+function renderPlainText(data: InvoiceWithDetail, plays: Plays) {
 
-    result += ` ${playFor(performance).name}: ${usd(amountFor(performance))} (${performance.audience}석)\n`;
+  let result = `청구 내역 (고객명: ${data.customer})\n`;
+
+  for (const performance of data.performance) {
+    result += ` ${performance.play.name}: ${usd(performance.amount)} (${performance.audience}석)\n`;
   }
 
   result += `총액: ${usd(totalAmount())}\n`;
@@ -24,50 +87,16 @@ export function statement(invoice: Invoice, plays: Plays) {
 
   function totalAmount() {
     let result = 0;
-    for (const performance of invoice.performances) {
-
-      result += amountFor(performance);
+    for (const performance of data.performance) {
+      result += performance.amount;
     }
     return result;
   }
 
   function totalVolumeCredits() {
     let result = 0;
-    for (const performance of invoice.performances) {
-      result += volumeCreditsFor(performance);
-    }
-    return result;
-  }
-
-  function volumeCreditsFor(performance: Performance) {
-    let result = 0;
-    result += Math.max(performance.audience - 30, 0);
-    if ("comedy" === playFor(performance).type) result += Math.floor(performance.audience / 5);
-    return result;
-  }
-
-  function playFor(performance: Performance) {
-    return plays[performance.playID];
-  }
-
-  function amountFor(performance: Performance) {
-    let result = 0;
-    switch (playFor(performance).type) {
-      case "tragedy": // 비극
-        result = 40000;
-        if (performance.audience > 30) {
-          result += 1000 * (performance.audience - 30);
-        }
-        break;
-      case "comedy": // 희극
-        result = 30000;
-        if (performance.audience > 20) {
-          result += 10000 + 500 * (performance.audience - 20);
-          result += 300 * performance.audience;
-          break;
-        }
-      default:
-        throw new Error(`알 수 없는 장르: ${playFor(performance).type}`);
+    for (const performance of data.performance) {
+      result += performance.volumeCredits;
     }
     return result;
   }
