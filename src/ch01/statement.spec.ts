@@ -11,4 +11,5 @@ test("statement", () => {
   expect(result).toContain("Othello: $500.00 (40석)")
   expect(result).toContain("총액: $1,730.00")
   expect(result).toContain("적립 포인트: 47점")
-})
+  console.log(result);
+});

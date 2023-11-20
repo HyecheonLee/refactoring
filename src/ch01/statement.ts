@@ -74,30 +74,26 @@ function renderPlainText(data: InvoiceWithDetail, plays: Plays) {
     result += ` ${performance.play.name}: ${usd(performance.amount)} (${performance.audience}석)\n`;
   }
 
-  result += `총액: ${usd(totalAmount())}\n`;
-  result += `적립 포인트: ${totalVolumeCredits()}점\n`;
+  result += `총액: ${usd(totalAmount(data))}\n`;
+  result += `적립 포인트: ${totalVolumeCredits(data)}점\n`;
   return result;
+}
 
-  function usd(number: number) {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency", currency: "USD",
-      minimumFractionDigits: 2
-    }).format(number / 100);
-  }
+function usd(number: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency", currency: "USD",
+    minimumFractionDigits: 2
+  }).format(number / 100);
+}
 
-  function totalAmount() {
-    let result = 0;
-    for (const performance of data.performance) {
-      result += performance.amount;
-    }
-    return result;
-  }
+function totalCalc<T>(data: T[], callback: (acc: number, curr: T) => number) {
+  return data.reduce(callback, 0);
+}
 
-  function totalVolumeCredits() {
-    let result = 0;
-    for (const performance of data.performance) {
-      result += performance.volumeCredits;
-    }
-    return result;
-  }
+function totalAmount(data: InvoiceWithDetail) {
+  return totalCalc(data.performance, (acc, curr) => acc + curr.amount);
+}
+
+function totalVolumeCredits(data: InvoiceWithDetail) {
+  return totalCalc(data.performance, (acc, curr) => acc + curr.volumeCredits);
 }
