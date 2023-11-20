@@ -4,22 +4,25 @@ export function statement(invoice: Invoice, plays: Plays) {
   let totalAmount = 0;
   let volumeCredits = 0;
   let result = `청구 내역 (고객명: ${invoice.customer})\n`;
-  const format = new Intl.NumberFormat("en-US", {
-    style: "currency", currency: "USD",
-    minimumFractionDigits: 2
-  }).format;
 
 
   for (const performance of invoice.performances) {
     volumeCredits += volumeCreditsFor(performance);
 
-    result += ` ${playFor(performance).name}: ${format(amountFor(performance) / 100)} (${performance.audience}석)\n`;
+    result += ` ${playFor(performance).name}: ${usd(amountFor(performance) / 100)} (${performance.audience}석)\n`;
     totalAmount += amountFor(performance);
   }
 
-  result += `총액: ${format(totalAmount / 100)}\n`;
+  result += `총액: ${usd(totalAmount / 100)}\n`;
   result += `적립 포인트: ${volumeCredits}점\n`;
   return result;
+
+  function usd(number: number) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency", currency: "USD",
+      minimumFractionDigits: 2
+    }).format(number);
+  }
 
   function volumeCreditsFor(performance: Performance) {
     let result = 0;
