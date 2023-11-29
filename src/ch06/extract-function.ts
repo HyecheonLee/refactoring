@@ -17,20 +17,29 @@ function printBaneer() {
   console.log("***********************");
 }
 
-function printOwing(invoice: Invoice) {
-  let outstanding = 0;
-
-  printBaneer();
-
-  for (const o of invoice.orders) {
-    outstanding += o.amount;
-  }
-
-  const today = Clock.today;
-
-  invoice.dueDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 30);
-
+function printDetails(invoice: Invoice, outstanding: number) {
   console.log(`고객명: ${invoice.customer}`);
   console.log(`채무액: ${outstanding}`);
   console.log(`마감일: ${invoice.dueDate.toLocaleDateString()}`);
+}
+
+function recordDueDate(invoice: Invoice) {
+  const today = Clock.today;
+  invoice.dueDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 30);
+}
+
+function calcOutstanding(invoice: Invoice) {
+  let result = 0;
+  for (const o of invoice.orders) {
+    result += o.amount;
+  }
+  return result;
+}
+
+function printOwing(invoice: Invoice) {
+
+  printBaneer();
+  recordDueDate(invoice);
+  printDetails(invoice, calcOutstanding(invoice));
+
 }
